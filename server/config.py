@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./server/data/lvc.sqlite"
 
     ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.1"
+    ollama_model: str = "qwen2.5:7b-instruct"
     ollama_timeout_seconds: float = 120.0
 
     data_dir: Path = Field(default=Path("server/data"))

@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -33,12 +33,15 @@ def serialize_task(task: Task) -> dict[str, Any]:
 
 
 @router.get("")
-def list_tasks(db: Session = Depends(get_db)):
-    try:
-        tasks = db.scalars(select(Task).order_by(Task.created_at.desc())).all()
-        return {"success": True, "data": [serialize_task(task) for task in tasks], "error": ""}
-    except Exception as exc:
-        return {"success": False, "data": None, "error": str(exc)}
+def list_tasks(
+    db: Session = Depends(get_db),
+    limit: int = 50,
+    offset: int = 0,
+):
+    tasks = db.scalars(
+        select(Task).order_by(Task.created_at.desc()).offset(offset).limit(limit)
+    ).all()
+    return {"success": True, "data": [serialize_task(t) for t in tasks], "error": ""}
 
 
 @router.post("")
@@ -57,4 +60,4 @@ def create_task(request: TaskCreateRequest, db: Session = Depends(get_db)):
         return {"success": True, "data": serialize_task(task), "error": ""}
     except Exception as exc:
         db.rollback()
-        return {"success": False, "data": None, "error": str(exc)}
+        raise HTTPException(status_code=400, detail=str(exc))

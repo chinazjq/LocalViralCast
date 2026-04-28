@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from ..providers.ollama import OllamaProvider
@@ -25,7 +25,7 @@ async def generate(request: GenerateRequest):
         )
         return {"success": True, "data": result, "error": ""}
     except Exception as exc:
-        return {"success": False, "data": None, "error": str(exc)}
+        raise HTTPException(status_code=502, detail=f"Ollama generate failed: {exc}")
 
 
 @router.post("/test")
@@ -33,6 +33,6 @@ async def test_ollama():
     try:
         provider = OllamaProvider()
         result = await provider.test()
-        return {"success": True, "data": result, "error": ""}
+        return {"success": True, "data": {"message": "Ollama connected", "models": result}, "error": ""}
     except Exception as exc:
-        return {"success": False, "data": None, "error": str(exc)}
+        raise HTTPException(status_code=502, detail=f"Ollama connection failed: {exc}")

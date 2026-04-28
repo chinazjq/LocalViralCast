@@ -15,7 +15,7 @@ export default function Lab() {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [renderResult, setRenderResult] = useState<{ output_path: string; duration: number } | null>(null);
+  const [renderResult, setRenderResult] = useState<{ output_path: string } | null>(null);
   const [renderError, setRenderError] = useState('');
   const [renderLoading, setRenderLoading] = useState(false);
 
@@ -50,12 +50,12 @@ export default function Lab() {
   };
 
   const beforeImageUpload = (file: UploadFile) => {
-    setImageFile(file as unknown as File);
+    setImageFile(file.originFileObj ?? (file as unknown as File));
     return false;
   };
 
   const beforeAudioUpload = (file: UploadFile) => {
-    setAudioFile(file as unknown as File);
+    setAudioFile(file.originFileObj ?? (file as unknown as File));
     return false;
   };
 
@@ -163,7 +163,6 @@ export default function Lab() {
                   description={
                     <Space direction="vertical">
                       <Text>输出路径：<Text code copyable>{renderResult.output_path}</Text></Text>
-                      <Text>时长：{renderResult.duration.toFixed(1)} 秒</Text>
                     </Space>
                   }
                   showIcon
